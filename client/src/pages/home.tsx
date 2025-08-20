@@ -147,7 +147,7 @@ export default function Home() {
       setSelectedAlbum(detailedAlbum);
       setIsModalOpen(true);
     } catch (error) {
-      if (isUnauthorizedError(error)) {
+      if (isUnauthorizedError(error as Error)) {
         toast({
           title: "Unauthorized",
           description: "You are logged out. Logging in again...",
@@ -186,7 +186,7 @@ export default function Home() {
   };
 
   // Sort ratings
-  const sortedRatings = [...userRatings].sort((a, b) => {
+  const sortedRatings = [...(userRatings as RatingWithAlbum[])].sort((a, b) => {
     switch (sortBy) {
       case "rating-desc":
         return parseFloat(b.rating) - parseFloat(a.rating);
@@ -248,11 +248,11 @@ export default function Home() {
                 Search Results
               </h3>
               <span className="text-sm text-gray-400" data-testid="search-results-count">
-                {searchMutation.isLoading ? "Searching..." : `${searchResults.length} albums found`}
+                {searchMutation.isPending ? "Searching..." : `${searchResults.length} albums found`}
               </span>
             </div>
 
-            {searchMutation.isLoading && (
+            {searchMutation.isPending && (
               <div className="text-center py-8">
                 <div className="text-gray-400">Searching...</div>
               </div>
@@ -339,7 +339,7 @@ export default function Home() {
                       {rating.album.name}
                     </h4>
                     <p className="text-gray-400 text-sm mb-2" data-testid={`rating-album-artist-${rating.id}`}>
-                      {rating.album.artist}
+                      {rating.album.artist} {rating.album.releaseDate ? `• ${new Date(rating.album.releaseDate).getFullYear()}` : ''}
                     </p>
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
@@ -391,19 +391,19 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-card-gray rounded-xl p-6 text-center">
                 <div className="text-3xl font-bold text-spotify-green mb-2" data-testid="stat-total-rated">
-                  {userStats.totalRated}
+                  {(userStats as any).totalRated}
                 </div>
                 <div className="text-gray-300">Albums Rated</div>
               </div>
               <div className="bg-card-gray rounded-xl p-6 text-center">
                 <div className="text-3xl font-bold text-warm-yellow mb-2" data-testid="stat-average-rating">
-                  {userStats.averageRating.toFixed(1)}
+                  {(userStats as any).averageRating.toFixed(1)}
                 </div>
                 <div className="text-gray-300">Average Rating</div>
               </div>
               <div className="bg-card-gray rounded-xl p-6 text-center">
                 <div className="text-3xl font-bold text-deep-blue mb-2" data-testid="stat-unique-artists">
-                  {userStats.uniqueArtists}
+                  {(userStats as any).uniqueArtists}
                 </div>
                 <div className="text-gray-300">Unique Artists</div>
               </div>

@@ -1,8 +1,8 @@
-# MusicRate
+# Vinalysis
 
 ## Overview
 
-MusicRate is a full-stack music rating application that allows users to discover, rate, and track albums from the Spotify catalog. The application provides a personalized music rating experience with comprehensive search functionality and user statistics tracking.
+Vinalysis is a full-stack music rating application that allows users to discover, rate, and track albums from the Spotify catalog. The name combines "vinyl" and "analysis" to capture the essence of music collection and evaluation. The application provides a personalized music rating experience with comprehensive search functionality and user statistics tracking.
 
 ## User Preferences
 

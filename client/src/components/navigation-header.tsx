@@ -30,7 +30,7 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
           <div className="flex items-center space-x-8">
             <div className="flex items-center">
               <Disc3 className="text-spotify-green text-2xl mr-2" />
-              <h1 className="text-xl font-bold text-white" data-testid="app-title">MusicRate</h1>
+              <h1 className="text-xl font-bold text-white" data-testid="app-title">Vinalysis</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
               <a
@@ -80,9 +80,9 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
             </div>
             
             <div className="flex items-center space-x-2">
-              {user?.profileImageUrl ? (
+              {(user as any)?.profileImageUrl ? (
                 <img
-                  src={user.profileImageUrl}
+                  src={(user as any).profileImageUrl}
                   alt="Profile"
                   className="w-8 h-8 rounded-full object-cover"
                   data-testid="img-profile"
@@ -93,7 +93,7 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
                 </div>
               )}
               <span className="hidden sm:block text-sm text-light-text" data-testid="text-username">
-                {user?.firstName || user?.email || "User"}
+                {(user as any)?.firstName || (user as any)?.email || "User"}
               </span>
               <Button
                 variant="ghost"

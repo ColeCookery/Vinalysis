@@ -12,7 +12,7 @@ export default function Landing() {
         <div className="text-center">
           <div className="flex justify-center items-center mb-8">
             <Disc3 className="text-spotify-green text-6xl mr-4" />
-            <h1 className="text-5xl font-bold text-white" data-testid="landing-title">MusicRate</h1>
+            <h1 className="text-5xl font-bold text-white" data-testid="landing-title">Vinalysis</h1>
           </div>
           
           <h2 className="text-4xl font-bold text-white mb-4" data-testid="landing-subtitle">
