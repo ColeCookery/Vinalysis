@@ -6,7 +6,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
-import Home from "@/pages/home";
+import Discover from "@/pages/discover";
+import MyRatings from "@/pages/my-ratings";
+import Statistics from "@/pages/statistics";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -17,7 +19,9 @@ function Router() {
         <Route path="/" component={Landing} />
       ) : (
         <>
-          <Route path="/" component={Home} />
+          <Route path="/" component={Discover} />
+          <Route path="/my-ratings" component={MyRatings} />
+          <Route path="/statistics" component={Statistics} />
         </>
       )}
       <Route component={NotFound} />

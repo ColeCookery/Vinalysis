@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const { user } = useAuth();
+  const [location] = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,27 +35,39 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
               <h1 className="text-xl font-bold text-white" data-testid="app-title">Vinalysis</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
-              <a
-                href="#discover"
-                className="text-light-text hover:text-spotify-green transition-colors px-3 py-2 rounded-md font-medium"
+              <Link
+                href="/"
+                className={`transition-colors px-3 py-2 rounded-md font-medium ${
+                  location === "/" 
+                    ? "text-spotify-green bg-spotify-green bg-opacity-10" 
+                    : "text-light-text hover:text-spotify-green"
+                }`}
                 data-testid="link-discover"
               >
                 Discover
-              </a>
-              <a
-                href="#my-ratings"
-                className="text-light-text hover:text-spotify-green transition-colors px-3 py-2 rounded-md font-medium"
+              </Link>
+              <Link
+                href="/my-ratings"
+                className={`transition-colors px-3 py-2 rounded-md font-medium ${
+                  location === "/my-ratings" 
+                    ? "text-spotify-green bg-spotify-green bg-opacity-10" 
+                    : "text-light-text hover:text-spotify-green"
+                }`}
                 data-testid="link-my-ratings"
               >
                 My Ratings
-              </a>
-              <a
-                href="#rankings"
-                className="text-light-text hover:text-spotify-green transition-colors px-3 py-2 rounded-md font-medium"
-                data-testid="link-rankings"
+              </Link>
+              <Link
+                href="/statistics"
+                className={`transition-colors px-3 py-2 rounded-md font-medium ${
+                  location === "/statistics" 
+                    ? "text-spotify-green bg-spotify-green bg-opacity-10" 
+                    : "text-light-text hover:text-spotify-green"
+                }`}
+                data-testid="link-statistics"
               >
-                Rankings
-              </a>
+                Statistics
+              </Link>
             </nav>
           </div>
           
@@ -123,15 +137,30 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
       {isMobileMenuOpen && (
         <div className="md:hidden bg-card-gray border-b border-gray-600" data-testid="mobile-menu">
           <div className="px-4 py-3 space-y-2">
-            <a href="#discover" className="block text-light-text hover:text-spotify-green py-2">
+            <Link 
+              href="/" 
+              className={`block py-2 ${
+                location === "/" ? "text-spotify-green" : "text-light-text hover:text-spotify-green"
+              }`}
+            >
               Discover
-            </a>
-            <a href="#my-ratings" className="block text-light-text hover:text-spotify-green py-2">
+            </Link>
+            <Link 
+              href="/my-ratings" 
+              className={`block py-2 ${
+                location === "/my-ratings" ? "text-spotify-green" : "text-light-text hover:text-spotify-green"
+              }`}
+            >
               My Ratings
-            </a>
-            <a href="#rankings" className="block text-light-text hover:text-spotify-green py-2">
-              Rankings
-            </a>
+            </Link>
+            <Link 
+              href="/statistics" 
+              className={`block py-2 ${
+                location === "/statistics" ? "text-spotify-green" : "text-light-text hover:text-spotify-green"
+              }`}
+            >
+              Statistics
+            </Link>
             <div className="pt-2 border-t border-gray-600">
               <form onSubmit={handleSearch}>
                 <Input
