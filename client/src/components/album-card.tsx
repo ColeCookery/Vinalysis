@@ -68,21 +68,22 @@ export function AlbumCard({ album, onAlbumClick, onRatingChange }: AlbumCardProp
         {album.artist}
       </p>
       
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-gray-500" data-testid={`album-year-${album.id}`}>
-            {album.releaseDate ? new Date(album.releaseDate).getFullYear() : ""}
-          </span>
-          {isListened && (
-            <div className="flex items-center space-x-1">
-              <Eye className="h-3 w-3 text-green-400" />
-              <span className="text-xs text-green-400" data-testid={`album-listened-${album.id}`}>
-                Listened
-              </span>
-            </div>
-          )}
-        </div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs text-gray-500" data-testid={`album-year-${album.id}`}>
+          {album.releaseDate ? new Date(album.releaseDate).getFullYear() : ""}
+        </span>
         
+        {isListened && (
+          <div className="flex items-center space-x-1">
+            <Eye className="h-3 w-3 text-green-400" />
+            <span className="text-xs text-green-400" data-testid={`album-listened-${album.id}`}>
+              Listened
+            </span>
+          </div>
+        )}
+      </div>
+      
+      <div className="flex justify-end">
         <StarRating
           rating={album.userRating?.rating ? parseFloat(album.userRating.rating) : 0}
           onRatingChange={handleRatingChange}
