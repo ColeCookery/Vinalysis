@@ -171,6 +171,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId
       });
 
+      // Ensure album exists in database first
+      let album = await storage.getAlbum(ratingData.albumId);
+      if (!album) {
+        // Fetch album data from Spotify and save it
+        const spotifyResponse = await fetch(`https://api.spotify.com/v1/albums/${ratingData.albumId}`, {
+          headers: {
+            'Authorization': `Bearer ${spotifyToken}`,
+          },
+        });
+
+        if (spotifyResponse.ok) {
+          const spotifyAlbum = await spotifyResponse.json();
+          const albumData = {
+            id: spotifyAlbum.id,
+            name: spotifyAlbum.name,
+            artist: spotifyAlbum.artists.map((a: any) => a.name).join(', '),
+            coverUrl: spotifyAlbum.images[0]?.url || null,
+            releaseDate: spotifyAlbum.release_date,
+            totalTracks: spotifyAlbum.total_tracks,
+            genres: spotifyAlbum.genres || [],
+            label: spotifyAlbum.label || null,
+            duration: spotifyAlbum.tracks.items.reduce((total: number, track: any) => total + track.duration_ms, 0),
+          };
+
+          album = await storage.upsertAlbum(albumData);
+        } else {
+          return res.status(400).json({ message: "Album not found" });
+        }
+      }
+
       // Check if rating already exists
       const existingRating = await storage.getUserRating(userId, ratingData.albumId);
       
