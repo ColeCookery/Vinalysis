@@ -67,18 +67,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         throw new Error(`Spotify search error: ${searchData.error?.message || 'Unknown error'}`);
       }
 
-      // Transform Spotify data to our format
-      const albums = searchData.albums.items.map((album: any) => ({
-        id: album.id,
-        name: album.name,
-        artist: album.artists.map((a: any) => a.name).join(', '),
-        releaseDate: album.release_date,
-        coverUrl: album.images[0]?.url || null,
-        spotifyUrl: album.external_urls.spotify,
-        genre: null, // Spotify doesn't provide genre in album search
-        label: album.label || null,
-        duration: null, // Would need separate API call
-      }));
+      // Transform Spotify data to our format and include user ratings
+      const userId = req.user.claims.sub;
+      const albums = await Promise.all(
+        searchData.albums.items.map(async (album: any) => {
+          const albumData = {
+            id: album.id,
+            name: album.name,
+            artist: album.artists.map((a: any) => a.name).join(', '),
+            releaseDate: album.release_date,
+            coverUrl: album.images[0]?.url || null,
+            spotifyUrl: album.external_urls.spotify,
+            genre: null, // Spotify doesn't provide genre in album search
+            label: album.label || null,
+            duration: null, // Would need separate API call
+          };
+
+          // Get user's rating for this album
+          const userRating = await storage.getUserRating(userId, album.id);
+
+          return {
+            ...albumData,
+            userRating
+          };
+        })
+      );
 
       res.json(albums);
     } catch (error) {
