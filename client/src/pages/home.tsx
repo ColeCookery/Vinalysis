@@ -66,12 +66,16 @@ export default function Home() {
       return await apiRequest("POST", "/api/ratings", {
         albumId,
         rating: rating.toString(),
-        listened: false,
+        // Don't pass listened - let it auto-mark as true on the backend
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/ratings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      // Refresh search results to show updated ratings
+      if (searchQuery) {
+        searchMutation.mutate(searchQuery);
+      }
       toast({
         title: "Success",
         description: "Rating saved successfully",

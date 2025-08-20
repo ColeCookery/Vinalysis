@@ -234,12 +234,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existingRating) {
         rating = await storage.updateRating(existingRating.id, {
           rating: ratingData.rating,
-          listened: ratingData.listened ?? true, // Auto-mark as listened when rating
+          listened: ratingData.listened !== undefined ? ratingData.listened : true, // Auto-mark as listened when rating if not explicitly set
         });
       } else {
         rating = await storage.createRating({
           ...ratingData,
-          listened: ratingData.listened ?? true, // Auto-mark as listened when rating
+          listened: ratingData.listened !== undefined ? ratingData.listened : true, // Auto-mark as listened when rating if not explicitly set
         });
       }
 
