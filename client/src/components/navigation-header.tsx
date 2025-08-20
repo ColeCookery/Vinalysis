@@ -8,9 +8,10 @@ import { Disc3, Search, Menu, User } from "lucide-react";
 interface NavigationHeaderProps {
   onSearch: (query: string) => void;
   searchQuery: string;
+  showSearch?: boolean;
 }
 
-export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProps) {
+export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: NavigationHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const { user } = useAuth();
@@ -72,26 +73,28 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="hidden md:block">
-              <form onSubmit={handleSearch} className="relative">
-                <Input
-                  type="search"
-                  placeholder="Search albums..."
-                  value={localSearchQuery}
-                  onChange={(e) => setLocalSearchQuery(e.target.value)}
-                  className="bg-dark-slate border-gray-600 rounded-lg px-4 py-2 pr-10 w-64 focus:ring-2 focus:ring-spotify-green focus:border-transparent"
-                  data-testid="input-search-desktop"
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-transparent hover:bg-gray-700 text-gray-400 p-1"
-                  data-testid="button-search-desktop"
-                >
-                  <Search className="h-4 w-4" />
-                </Button>
-              </form>
-            </div>
+            {showSearch && (
+              <div className="hidden md:block">
+                <form onSubmit={handleSearch} className="relative">
+                  <Input
+                    type="search"
+                    placeholder="Search albums..."
+                    value={localSearchQuery}
+                    onChange={(e) => setLocalSearchQuery(e.target.value)}
+                    className="bg-dark-slate border-gray-600 rounded-lg px-4 py-2 pr-10 w-64 focus:ring-2 focus:ring-spotify-green focus:border-transparent"
+                    data-testid="input-search-desktop"
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-transparent hover:bg-gray-700 text-gray-400 p-1"
+                    data-testid="button-search-desktop"
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
+            )}
             
             <div className="flex items-center space-x-2">
               {(user as any)?.profileImageUrl ? (
@@ -161,18 +164,20 @@ export function NavigationHeader({ onSearch, searchQuery }: NavigationHeaderProp
             >
               Statistics
             </Link>
-            <div className="pt-2 border-t border-gray-600">
-              <form onSubmit={handleSearch}>
-                <Input
-                  type="search"
-                  placeholder="Search albums..."
-                  value={localSearchQuery}
-                  onChange={(e) => setLocalSearchQuery(e.target.value)}
-                  className="w-full bg-dark-slate border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-spotify-green"
-                  data-testid="input-search-mobile"
-                />
-              </form>
-            </div>
+            {showSearch && (
+              <div className="pt-2 border-t border-gray-600">
+                <form onSubmit={handleSearch}>
+                  <Input
+                    type="search"
+                    placeholder="Search albums..."
+                    value={localSearchQuery}
+                    onChange={(e) => setLocalSearchQuery(e.target.value)}
+                    className="w-full bg-dark-slate border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-spotify-green"
+                    data-testid="input-search-mobile"
+                  />
+                </form>
+              </div>
+            )}
             <Button
               variant="ghost"
               onClick={handleLogout}

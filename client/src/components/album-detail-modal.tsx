@@ -13,9 +13,10 @@ interface AlbumDetailModalProps {
   album: AlbumWithRating | null;
   isOpen: boolean;
   onClose: () => void;
+  onRatingUpdate?: () => void;
 }
 
-export function AlbumDetailModal({ album, isOpen, onClose }: AlbumDetailModalProps) {
+export function AlbumDetailModal({ album, isOpen, onClose, onRatingUpdate }: AlbumDetailModalProps) {
   const [rating, setRating] = useState(0);
   const [listened, setListened] = useState(false);
   const { toast } = useToast();
@@ -46,6 +47,9 @@ export function AlbumDetailModal({ album, isOpen, onClose }: AlbumDetailModalPro
       });
       queryClient.invalidateQueries({ queryKey: ["/api/ratings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      if (onRatingUpdate) {
+        onRatingUpdate();
+      }
       onClose();
     },
     onError: (error) => {

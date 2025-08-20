@@ -194,34 +194,6 @@ export default function Discover() {
       <NavigationHeader onSearch={handleSearch} searchQuery={searchQuery} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Statistics */}
-        {stats && (
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6" data-testid="stats-title">
-              Your Music Statistics
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-card-gray rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-spotify-green mb-2" data-testid="total-rated">
-                  {stats.totalRated}
-                </div>
-                <div className="text-gray-400">Albums Rated</div>
-              </div>
-              <div className="bg-card-gray rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-warm-yellow mb-2" data-testid="average-rating">
-                  {stats.averageRating?.toFixed(1) || "0.0"}
-                </div>
-                <div className="text-gray-400">Average Rating</div>
-              </div>
-              <div className="bg-card-gray rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-purple-400 mb-2" data-testid="unique-artists">
-                  {stats.uniqueArtists}
-                </div>
-                <div className="text-gray-400">Unique Artists</div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Search Results */}
         {searchQuery && (
@@ -370,6 +342,12 @@ export default function Discover() {
         onClose={() => {
           setIsModalOpen(false);
           setSelectedAlbum(null);
+        }}
+        onRatingUpdate={() => {
+          // Refresh search results if there's an active search
+          if (searchQuery) {
+            searchMutation.mutate(searchQuery);
+          }
         }}
       />
     </div>
