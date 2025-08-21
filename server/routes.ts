@@ -1,11 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertAlbumSchema, insertRatingSchema, updateRatingSchema } from "@shared/schema";
 
-// Quick demo: bypass authentication
+// Quick demo: bypass authentication for Render
 const isAuthenticated = (_req: any, _res: any, next: any) => next();
+const setupAuth = async (_app: any) => {};
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
