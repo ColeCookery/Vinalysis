@@ -31,6 +31,15 @@ app.use((req, res, next) => {
   // Setup GitHub auth (adds /api/login/github, /api/auth/github/callback, /api/logout/github)
   setupGitHubAuth(app);
 
+  // Add /api/me route here
+  app.get("/api/me", (req, res) => {
+    if (req.user) {
+      res.json({ user: req.user });
+    } else {
+      res.json({ user: null });
+    }
+  });
+
   // Register other API routes
   const server = await registerRoutes(app);
 
