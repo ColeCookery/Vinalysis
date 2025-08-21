@@ -1,15 +1,21 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertAlbumSchema, insertRatingSchema, updateRatingSchema } from "@shared/schema";
+
+// Simple middleware to protect routes
+const ensureAuthenticated = (req: any, res: any, next: any) => {
+  if (req.isAuthenticated()) return next();
+  res.status(401).json({ message: "Not logged in" });
+};
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  // await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', ensureAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -21,7 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Spotify search proxy
-  app.get('/api/search', isAuthenticated, async (req: any, res) => {
+  app.get('/api/search', ensureAuthenticated, async (req: any, res) => {
     try {
       const query = req.query.q as string;
       if (!query) {
@@ -101,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get album details
-  app.get('/api/albums/:id', isAuthenticated, async (req: any, res) => {
+  app.get('/api/albums/:id', ensureAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
       const userId = req.user.claims.sub;
@@ -176,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create or update rating
-  app.post('/api/ratings', isAuthenticated, async (req: any, res) => {
+  app.post('/api/ratings', ensureAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const ratingData = insertRatingSchema.parse({
@@ -251,7 +257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update rating
-  app.put('/api/ratings/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/ratings/:id', ensureAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
       const ratingData = updateRatingSchema.parse(req.body);
@@ -265,7 +271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete rating
-  app.delete('/api/ratings/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/ratings/:id', ensureAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
       await storage.deleteRating(id);
@@ -277,7 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's ratings
-  app.get('/api/ratings', isAuthenticated, async (req: any, res) => {
+  app.get('/api/ratings', ensureAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const ratings = await storage.getUserRatings(userId);
@@ -289,7 +295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user stats
-  app.get('/api/stats', isAuthenticated, async (req: any, res) => {
+  app.get('/api/stats', ensureAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const stats = await storage.getUserStats(userId);

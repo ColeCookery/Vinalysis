@@ -23,7 +23,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
   };
 
   const handleLogout = () => {
-    window.location.href = "/api/logout";
+    window.location.href = "/api/logout/github";
   };
 
   return (

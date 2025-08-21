@@ -60,7 +60,7 @@ export function AlbumDetailModal({ album, isOpen, onClose, onRatingUpdate }: Alb
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/api/login/github";
         }, 500);
         return;
       }

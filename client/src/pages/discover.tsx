@@ -52,7 +52,7 @@ export default function Discover() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/api/login/github";
         }, 500);
         return;
       }
@@ -93,7 +93,7 @@ export default function Discover() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/api/login/github";
         }, 500);
         return;
       }
@@ -126,7 +126,7 @@ export default function Discover() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/api/login/github";
         }, 500);
         return;
       }
