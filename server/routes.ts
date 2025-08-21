@@ -4,9 +4,13 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertAlbumSchema, insertRatingSchema, updateRatingSchema } from "@shared/schema";
 
+// Quick demo: bypass authentication
+const isAuthenticated = (_req: any, _res: any, next: any) => next();
+
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  // await setupAuth(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
