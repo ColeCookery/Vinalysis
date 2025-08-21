@@ -143,7 +143,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
             <Link 
               href="/" 
               className={`block py-2 ${
-                location === "/" ? "text-spotify-green" : "text-light-text hover:text-spotify-green"
+                location === "/" ? "text-spotify-green" : "text-light-text hover:text-white"
               }`}
             >
               Discover
@@ -151,7 +151,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
             <Link 
               href="/my-ratings" 
               className={`block py-2 ${
-                location === "/my-ratings" ? "text-spotify-green" : "text-light-text hover:text-spotify-green"
+                location === "/my-ratings" ? "text-spotify-green" : "text-light-text hover:text-white"
               }`}
             >
               My Ratings
@@ -159,7 +159,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
             <Link 
               href="/statistics" 
               className={`block py-2 ${
-                location === "/statistics" ? "text-spotify-green" : "text-light-text hover:text-spotify-green"
+                location === "/statistics" ? "text-spotify-green" : "text-light-text hover:text-white"
               }`}
             >
               Statistics

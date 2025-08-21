@@ -5,7 +5,7 @@ import passport from "passport";
 import { Strategy as GitHubStrategy, Profile as GitHubProfile } from "passport-github2";
 import { storage } from "./storage";
 
-if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || !process.env.BASE_URL) {
+if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || !process.env.GITHUB_CALLBACK_URL) {
   throw new Error("GitHub auth environment variables missing");
 }
 
@@ -30,7 +30,7 @@ export function setupGitHubAuth(app: Express) {
       {
         clientID: process.env.GITHUB_CLIENT_ID!,
         clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-        callbackURL: `${process.env.BASE_URL}/api/auth/github/callback`,
+        callbackURL: `${process.env.GITHUB_CALLBACK_URL}/api/auth/github/callback`,
       },
       async function (
         accessToken: string,
