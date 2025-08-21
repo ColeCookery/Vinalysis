@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicRate - Discover, Rate & Track Albums</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'spotify-green': '#1DB954',
+                        'deep-blue': '#1E3A8A',
+                        'warm-yellow': '#FCD34D',
+                        'dark-slate': '#111827',
+                        'card-gray': '#1F2937',
+                        'light-text': '#F9FAFB'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark-slate text-light-text font-inter min-h-screen">
+    <!-- @COMPONENT: NavigationHeader -->
+    <header class="bg-card-gray border-b border-gray-600 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-compact-disc text-spotify-green text-2xl mr-2"></i>
+                        <h1 class="text-xl font-bold text-white">MusicRate</h1>
+                    </div>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#discover" class="text-light-text hover:text-spotify-green transition-colors px-3 py-2 rounded-md font-medium" data-event="click:navigate">Discover</a>
+                        <a href="#my-ratings" class="text-light-text hover:text-spotify-green transition-colors px-3 py-2 rounded-md font-medium" data-event="click:navigate">My Ratings</a>
+                        <a href="#rankings" class="text-light-text hover:text-spotify-green transition-colors px-3 py-2 rounded-md font-medium" data-event="click:navigate">Rankings</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:block">
+                        <div class="relative">
+                            <input type="search" placeholder="Search albums..." class="bg-dark-slate border border-gray-600 rounded-lg px-4 py-2 pr-10 w-64 focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent" data-implementation="Connect to music API search">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- Profile picture placeholder -->
+                        <div class="w-8 h-8 bg-spotify-green rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                        <span class="hidden sm:block text-sm" data-bind="user.name">Alex Chen</span>
+                    </div>
+                    <button class="md:hidden text-light-text hover:text-spotify-green" data-event="click:toggleMobileMenu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: NavigationHeader -->
+
+    <!-- Mobile Navigation Menu -->
+    <div class="md:hidden bg-card-gray border-b border-gray-600 hidden" data-mock="true" data-implementation="Toggle visibility with mobile menu button">
+        <div class="px-4 py-3 space-y-2">
+            <a href="#discover" class="block text-light-text hover:text-spotify-green py-2">Discover</a>
+            <a href="#my-ratings" class="block text-light-text hover:text-spotify-green py-2">My Ratings</a>
+            <a href="#rankings" class="block text-light-text hover:text-spotify-green py-2">Rankings</a>
+            <div class="pt-2 border-t border-gray-600">
+                <input type="search" placeholder="Search albums..." class="w-full bg-dark-slate border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-spotify-green">
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- @COMPONENT: WelcomeHero -->
+        <section class="mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold text-white mb-4">Discover & Rate Amazing Albums</h2>
+                <p class="text-lg text-gray-300 max-w-2xl mx-auto">Track your musical journey, rate your favorite albums, and discover new sounds from artists around the world.</p>
+            </div>
+            
+            <!-- Enhanced Search Section -->
+            <div class="max-w-2xl mx-auto mb-8">
+                <div class="relative">
+                    <input type="search" placeholder="Search for albums, artists..." class="w-full bg-card-gray border border-gray-600 rounded-xl px-6 py-4 pr-12 text-lg focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent" data-implementation="Connect to Spotify/MusicBrainz API">
+                    <button class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors" data-event="click:performSearch">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="flex flex-wrap justify-center mt-4 gap-2">
+                    <span class="text-sm text-gray-400">Popular searches:</span>
+                    <button class="text-sm text-spotify-green hover:text-green-400 transition-colors" data-mock="true">The Beatles</button>
+                    <button class="text-sm text-spotify-green hover:text-green-400 transition-colors" data-mock="true">Pink Floyd</button>
+                    <button class="text-sm text-spotify-green hover:text-green-400 transition-colors" data-mock="true">Radiohead</button>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: WelcomeHero -->
+
+        <!-- @COMPONENT: SearchResults [visible when search is performed] -->
+        <section class="mb-12" data-implementation="Show/hide based on search state">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-semibold text-white">Search Results</h3>
+                <span class="text-sm text-gray-400" data-bind="searchResults.count">248 albums found</span>
+            </div>
+            
+            <!-- @MAP: searchResults.map(album => ( -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+                <!-- Album Card 1 -->
+                <div class="bg-card-gray rounded-xl p-4 hover:bg-gray-700 transition-all duration-300 group cursor-pointer" data-event="click:openAlbumDetails">
+                    <!-- Abbey Road album cover -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Abbey Road album cover" class="w-full aspect-square object-cover rounded-lg mb-3 group-hover:shadow-lg transition-shadow" data-bind="album.coverUrl">
+                    <h4 class="font-semibold text-white text-sm mb-1 truncate" data-bind="album.name">Abbey Road</h4>
+                    <p class="text-gray-400 text-xs mb-2 truncate" data-bind="album.artist">The Beatles</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500" data-bind="album.year">1969</span>
+                        <!-- @COMPONENT: StarRating [rating=0, interactive=true] -->
+                        <div class="flex items-center space-x-1" data-implementation="Interactive star rating component">
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="0.5"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="1.5"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="2.5"></i>
+                        </div>
+                        <!-- @END_COMPONENT: StarRating -->
+                    </div>
+                </div>
+
+                <!-- Album Card 2 -->
+                <div class="bg-card-gray rounded-xl p-4 hover:bg-gray-700 transition-all duration-300 group cursor-pointer" data-event="click:openAlbumDetails">
+                    <!-- Dark Side of the Moon album cover -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="The Dark Side of the Moon album cover" class="w-full aspect-square object-cover rounded-lg mb-3 group-hover:shadow-lg transition-shadow" data-bind="album.coverUrl">
+                    <h4 class="font-semibold text-white text-sm mb-1 truncate" data-bind="album.name">The Dark Side of the Moon</h4>
+                    <p class="text-gray-400 text-xs mb-2 truncate" data-bind="album.artist">Pink Floyd</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500" data-bind="album.year">1973</span>
+                        <!-- Already rated -->
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star-half-alt text-warm-yellow text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Album Card 3 -->
+                <div class="bg-card-gray rounded-xl p-4 hover:bg-gray-700 transition-all duration-300 group cursor-pointer" data-event="click:openAlbumDetails">
+                    <!-- OK Computer album cover representation -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="OK Computer album cover" class="w-full aspect-square object-cover rounded-lg mb-3 group-hover:shadow-lg transition-shadow" data-bind="album.coverUrl">
+                    <h4 class="font-semibold text-white text-sm mb-1 truncate" data-bind="album.name">OK Computer</h4>
+                    <p class="text-gray-400 text-xs mb-2 truncate" data-bind="album.artist">Radiohead</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500" data-bind="album.year">1997</span>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="0.5"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="1.5"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="2.5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Album Card 4 -->
+                <div class="bg-card-gray rounded-xl p-4 hover:bg-gray-700 transition-all duration-300 group cursor-pointer" data-event="click:openAlbumDetails">
+                    <!-- Thriller album cover representation -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Thriller album cover" class="w-full aspect-square object-cover rounded-lg mb-3 group-hover:shadow-lg transition-shadow" data-bind="album.coverUrl">
+                    <h4 class="font-semibold text-white text-sm mb-1 truncate" data-bind="album.name">Thriller</h4>
+                    <p class="text-gray-400 text-xs mb-2 truncate" data-bind="album.artist">Michael Jackson</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500" data-bind="album.year">1982</span>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="far fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Album Card 5 -->
+                <div class="bg-card-gray rounded-xl p-4 hover:bg-gray-700 transition-all duration-300 group cursor-pointer" data-event="click:openAlbumDetails">
+                    <!-- Nevermind album cover representation -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Nevermind album cover" class="w-full aspect-square object-cover rounded-lg mb-3 group-hover:shadow-lg transition-shadow" data-bind="album.coverUrl">
+                    <h4 class="font-semibold text-white text-sm mb-1 truncate" data-bind="album.name">Nevermind</h4>
+                    <p class="text-gray-400 text-xs mb-2 truncate" data-bind="album.artist">Nirvana</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500" data-bind="album.year">1991</span>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="0.5"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="1.5"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-xs transition-colors" data-rating="2.5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Album Card 6 -->
+                <div class="bg-card-gray rounded-xl p-4 hover:bg-gray-700 transition-all duration-300 group cursor-pointer" data-event="click:openAlbumDetails">
+                    <!-- Kind of Blue album cover representation -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Kind of Blue album cover" class="w-full aspect-square object-cover rounded-lg mb-3 group-hover:shadow-lg transition-shadow" data-bind="album.coverUrl">
+                    <h4 class="font-semibold text-white text-sm mb-1 truncate" data-bind="album.name">Kind of Blue</h4>
+                    <p class="text-gray-400 text-xs mb-2 truncate" data-bind="album.artist">Miles Davis</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500" data-bind="album.year">1959</span>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                            <i class="fas fa-star text-warm-yellow text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_MAP -->
+
+            <!-- Load More Button -->
+            <div class="text-center">
+                <button class="bg-spotify-green hover:bg-green-600 text-white px-8 py-3 rounded-xl font-medium transition-colors" data-event="click:loadMoreResults">
+                    Load More Results
+                </button>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: SearchResults -->
+
+        <!-- @COMPONENT: PersonalRankings -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-semibold text-white">My Top Rated Albums</h3>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-400">Sort by:</span>
+                    <select class="bg-card-gray border border-gray-600 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-spotify-green" data-implementation="Sorting functionality">
+                        <option>Rating (High to Low)</option>
+                        <option>Rating (Low to High)</option>
+                        <option>Recently Added</option>
+                        <option>Artist Name</option>
+                        <option>Album Name</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- @MAP: userRatings.sort((a, b) => b.rating - a.rating).map(rating => ( -->
+            <div class="space-y-4">
+                <!-- Ranked Album Item 1 -->
+                <div class="bg-card-gray rounded-xl p-4 flex items-center space-x-4 hover:bg-gray-700 transition-colors" data-bind="rating.id">
+                    <div class="flex-shrink-0">
+                        <span class="text-2xl font-bold text-warm-yellow">#1</span>
+                    </div>
+                    <!-- Album cover for Dark Side of the Moon -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" alt="The Dark Side of the Moon album cover" class="w-16 h-16 object-cover rounded-lg flex-shrink-0" data-bind="rating.album.coverUrl">
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-semibold text-white mb-1" data-bind="rating.album.name">The Dark Side of the Moon</h4>
+                        <p class="text-gray-400 text-sm mb-2" data-bind="rating.album.artist">Pink Floyd</p>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-1">
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star-half-alt text-warm-yellow text-sm"></i>
+                                <span class="text-sm text-gray-300 ml-2" data-bind="rating.rating">4.5</span>
+                            </div>
+                            <span class="text-xs text-gray-500" data-bind="rating.dateRated">Rated 2 weeks ago</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <button class="text-gray-400 hover:text-spotify-green transition-colors" data-event="click:editRating" title="Edit Rating">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 transition-colors" data-event="click:deleteRating" title="Delete Rating">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ranked Album Item 2 -->
+                <div class="bg-card-gray rounded-xl p-4 flex items-center space-x-4 hover:bg-gray-700 transition-colors" data-bind="rating.id">
+                    <div class="flex-shrink-0">
+                        <span class="text-2xl font-bold text-gray-400">#2</span>
+                    </div>
+                    <!-- Abbey Road album cover -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" alt="Abbey Road album cover" class="w-16 h-16 object-cover rounded-lg flex-shrink-0" data-bind="rating.album.coverUrl">
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-semibold text-white mb-1" data-bind="rating.album.name">Abbey Road</h4>
+                        <p class="text-gray-400 text-sm mb-2" data-bind="rating.album.artist">The Beatles</p>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-1">
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="far fa-star text-gray-600 text-sm"></i>
+                                <span class="text-sm text-gray-300 ml-2" data-bind="rating.rating">4.0</span>
+                            </div>
+                            <span class="text-xs text-gray-500" data-bind="rating.dateRated">Rated 1 month ago</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <button class="text-gray-400 hover:text-spotify-green transition-colors" data-event="click:editRating" title="Edit Rating">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 transition-colors" data-event="click:deleteRating" title="Delete Rating">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ranked Album Item 3 -->
+                <div class="bg-card-gray rounded-xl p-4 flex items-center space-x-4 hover:bg-gray-700 transition-colors" data-bind="rating.id">
+                    <div class="flex-shrink-0">
+                        <span class="text-2xl font-bold text-gray-400">#3</span>
+                    </div>
+                    <!-- Thriller album cover -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" alt="Thriller album cover" class="w-16 h-16 object-cover rounded-lg flex-shrink-0" data-bind="rating.album.coverUrl">
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-semibold text-white mb-1" data-bind="rating.album.name">Thriller</h4>
+                        <p class="text-gray-400 text-sm mb-2" data-bind="rating.album.artist">Michael Jackson</p>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-1">
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star text-warm-yellow text-sm"></i>
+                                <i class="fas fa-star-half-alt text-warm-yellow text-sm"></i>
+                                <i class="far fa-star text-gray-600 text-sm"></i>
+                                <span class="text-sm text-gray-300 ml-2" data-bind="rating.rating">3.5</span>
+                            </div>
+                            <span class="text-xs text-gray-500" data-bind="rating.dateRated">Rated 3 days ago</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <button class="text-gray-400 hover:text-spotify-green transition-colors" data-event="click:editRating" title="Edit Rating">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-red-500 transition-colors" data-event="click:deleteRating" title="Delete Rating">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_MAP -->
+
+            <div class="text-center mt-8">
+                <button class="text-spotify-green hover:text-green-400 font-medium transition-colors" data-event="click:viewAllRatings">
+                    View All My Ratings (24 albums) →
+                </button>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: PersonalRankings -->
+
+        <!-- @COMPONENT: StatisticsOverview -->
+        <section class="mb-12">
+            <h3 class="text-2xl font-semibold text-white mb-6">Your Music Statistics</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-card-gray rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-spotify-green mb-2" data-bind="stats.totalRated">24</div>
+                    <div class="text-gray-300">Albums Rated</div>
+                </div>
+                <div class="bg-card-gray rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-warm-yellow mb-2" data-bind="stats.averageRating">3.8</div>
+                    <div class="text-gray-300">Average Rating</div>
+                </div>
+                <div class="bg-card-gray rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-deep-blue mb-2" data-bind="stats.uniqueArtists">18</div>
+                    <div class="text-gray-300">Unique Artists</div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: StatisticsOverview -->
+    </main>
+
+    <!-- @COMPONENT: AlbumDetailModal [hidden by default] -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-implementation="Show/hide modal based on album selection" data-event="click:closeModal">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-card-gray rounded-2xl p-8 max-w-2xl w-full max-h-screen overflow-y-auto" data-event="click:stopPropagation">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 class="text-2xl font-bold text-white">Album Details</h2>
+                    <button class="text-gray-400 hover:text-white transition-colors" data-event="click:closeModal">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-8">
+                    <!-- Album artwork -->
+                    <div class="flex-shrink-0">
+                        <!-- Large album cover image -->
+                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=300" alt="Selected album cover" class="w-72 h-72 object-cover rounded-xl shadow-lg" data-bind="selectedAlbum.coverUrl">
+                    </div>
+                    
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-white mb-2" data-bind="selectedAlbum.name">Abbey Road</h3>
+                        <p class="text-lg text-gray-300 mb-2" data-bind="selectedAlbum.artist">The Beatles</p>
+                        <p class="text-gray-400 text-sm mb-4">Released <span data-bind="selectedAlbum.releaseDate">September 26, 1969</span></p>
+                        
+                        <!-- Rating Section -->
+                        <div class="bg-dark-slate rounded-xl p-6 mb-6">
+                            <h4 class="font-semibold text-white mb-4">Rate this album</h4>
+                            <!-- @COMPONENT: InteractiveStarRating [size=large] -->
+                            <div class="flex items-center space-x-2 mb-4" data-implementation="Large interactive star rating">
+                                <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-2xl transition-colors" data-rating="0.5"></i>
+                                <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-2xl transition-colors" data-rating="1"></i>
+                                <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-2xl transition-colors" data-rating="1.5"></i>
+                                <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-2xl transition-colors" data-rating="2"></i>
+                                <i class="fas fa-star text-gray-600 hover:text-warm-yellow cursor-pointer text-2xl transition-colors" data-rating="2.5"></i>
+                                <span class="text-gray-300 ml-4">Click to rate</span>
+                            </div>
+                            <!-- @END_COMPONENT: InteractiveStarRating -->
+                            
+                            <div class="flex items-center space-x-4 mb-4">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-spotify-green bg-dark-slate border-gray-600 rounded focus:ring-spotify-green" data-bind="rating.listened">
+                                    <span class="text-gray-300">Mark as listened</span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex space-x-3">
+                                <button class="bg-spotify-green hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors" data-event="click:saveRating">
+                                    Save Rating
+                                </button>
+                                <button class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition-colors" data-event="click:cancelRating">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Album Info -->
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Genre:</span>
+                                <span class="text-gray-300" data-bind="selectedAlbum.genre">Rock, Pop</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Label:</span>
+                                <span class="text-gray-300" data-bind="selectedAlbum.label">Apple Records</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Duration:</span>
+                                <span class="text-gray-300" data-bind="selectedAlbum.duration">47 minutes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AlbumDetailModal -->
+
+    <!-- @COMPONENT: AuthenticationModal [hidden by default] -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-implementation="Show for non-authenticated users" data-event="click:closeAuthModal">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-card-gray rounded-2xl p-8 max-w-md w-full" data-event="click:stopPropagation">
+                <div class="text-center mb-6">
+                    <i class="fas fa-compact-disc text-spotify-green text-4xl mb-4"></i>
+                    <h2 class="text-2xl font-bold text-white mb-2">Join MusicRate</h2>
+                    <p class="text-gray-400">Create an account to start rating albums</p>
+                </div>
+                
+                <!-- @STATE: authMode:string = 'login' -->
+                <div class="space-y-4" data-implementation="Toggle between login/register forms">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <input type="email" class="w-full bg-dark-slate border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent" placeholder="Enter your email" data-implementation="Email validation">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <input type="password" class="w-full bg-dark-slate border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent" placeholder="Enter your password" data-implementation="Password validation">
+                    </div>
+                    
+                    <button class="w-full bg-spotify-green hover:bg-green-600 text-white py-3 rounded-lg font-medium transition-colors" data-event="click:authenticate" data-implementation="Handle authentication with Replit Auth">
+                        Sign In
+                    </button>
+                    
+                    <div class="text-center">
+                        <button class="text-sm text-spotify-green hover:text-green-400 transition-colors" data-event="click:toggleAuthMode">
+                            Don't have an account? Sign up
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AuthenticationModal -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            'use strict';
+            
+            // Simple demo interactions
+            let currentRating = 0;
+            
+            // Star rating hover effects
+            const stars = document.querySelectorAll('[data-rating]');
+            stars.forEach(star => {
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseFloat(this.dataset.rating);
+                    highlightStars(this.parentElement, rating);
+                });
+                
+                star.addEventListener('mouseleave', function() {
+                    highlightStars(this.parentElement, currentRating);
+                });
+                
+                star.addEventListener('click', function() {
+                    currentRating = parseFloat(this.dataset.rating);
+                    highlightStars(this.parentElement, currentRating);
+                    // TODO: Save rating to database
+                });
+            });
+            
+            function highlightStars(container, rating) {
+                const containerStars = container.querySelectorAll('[data-rating]');
+                containerStars.forEach(star => {
+                    const starRating = parseFloat(star.dataset.rating);
+                    if (starRating <= rating) {
+                        star.className = star.className.replace('text-gray-600', 'text-warm-yellow');
+                    } else {
+                        star.className = star.className.replace('text-warm-yellow', 'text-gray-600');
+                    }
+                });
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuButton = document.querySelector('[data-event="click:toggleMobileMenu"]');
+            const mobileMenu = document.querySelector('.md\\:hidden.bg-card-gray');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Modal management
+            const albumCards = document.querySelectorAll('[data-event="click:openAlbumDetails"]');
+            const modal = document.querySelector('.fixed.inset-0.bg-black.bg-opacity-50');
+            const closeModalButtons = document.querySelectorAll('[data-event="click:closeModal"]');
+            
+            albumCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    if (modal) modal.classList.remove('hidden');
+                    // TODO: Load album details from API
+                });
+            });
+            
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (modal) modal.classList.add('hidden');
+                });
+            });
+            
+            // Search functionality placeholder
+            const searchInputs = document.querySelectorAll('input[type="search"]');
+            searchInputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        // TODO: Implement search API call
+                        console.log('Search for:', this.value);
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
