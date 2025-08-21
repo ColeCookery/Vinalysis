@@ -30,7 +30,7 @@ export const setupGitHubAuth = (app: Express) => {
       {
         clientID: process.env.GITHUB_CLIENT_ID!,
         clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-        callbackURL: ${process.env.GITHUB_CALLBACK_URL},
+        callbackURL: process.env.GITHUB_CALLBACK_URL,
       },
       async (
         accessToken: string,
