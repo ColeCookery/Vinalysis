@@ -2,6 +2,14 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertAlbumSchema, insertRatingSchema, updateRatingSchema } from "@shared/schema";
+import { githubLogin, githubCallback, githubLogout } from "./githubAuth";
+
+
+// GitHub OAuth routes
+app.get("/api/login/github", githubLogin);
+app.get("/api/callback/github", githubCallback);
+app.get("/api/logout/github", githubLogout);
+
 
 // Simple middleware to protect routes
 const ensureAuthenticated = (req: any, res: any, next: any) => {
