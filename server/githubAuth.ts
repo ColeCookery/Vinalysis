@@ -1,5 +1,5 @@
 // githubAuth.ts
-import { type Express, type RequestHandler } from "express";
+import express, { type Express, type RequestHandler } from "express";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GitHubStrategy, Profile as GitHubProfile } from "passport-github2";
@@ -9,73 +9,71 @@ if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || !proce
   throw new Error("GitHub auth environment variables missing");
 }
 
-// Passport setup
-passport.serializeUser((user: Express.User, done) => done(null, user));
-passport.deserializeUser((user: Express.User, done) => done(null, user));
-
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      callbackURL: process.env.GITHUB_CALLBACK_URL!,
-    },
-    async function (
-      accessToken: string,
-      refreshToken: string | undefined,
-      profile: GitHubProfile,
-      done: (error: any, user?: Express.User | false) => void
-    ) {
-      try {
-        const user = {
-          id: profile.id,
-          username: profile.username,
-          displayName: profile.displayName,
-          avatarUrl: profile.photos?.[0]?.value || null,
-        };
-
-        // Upsert user in database
-        await storage.upsertUser({
-          id: user.id,
-          email: profile.emails?.[0]?.value || "",
-          firstName: profile.displayName || "",
-          lastName: "",
-          profileImageUrl: user.avatarUrl,
-        });
-
-        done(null, user);
-      } catch (err) {
-        done(err);
-      }
-    }
-  )
-);
-
-// Express session setup (to be used in server setup)
-export function setupGitHubSession(app: Express) {
+export const setupGitHubAuth = (app: Express) => {
   app.use(
     session({
       secret: process.env.SESSION_SECRET || "dev_secret",
       resave: false,
       saveUninitialized: false,
-      cookie: { httpOnly: true, secure: false },
+      cookie: { httpOnly: true, secure: process.env.NODE_ENV === "production" },
     })
   );
+
   app.use(passport.initialize());
   app.use(passport.session());
-}
 
-// Named exports for routes so routes.ts can import them
-export const githubLogin: RequestHandler = passport.authenticate("github", { scope: ["user:email"] });
+  passport.serializeUser((user: Express.User, done) => done(null, user));
+  passport.deserializeUser((user: Express.User, done) => done(null, user));
 
-export const githubCallback: RequestHandler = passport.authenticate("github", {
-  successRedirect: "/",
-  failureRedirect: "/login",
-});
+  passport.use(
+    new GitHubStrategy(
+      {
+        clientID: process.env.GITHUB_CLIENT_ID!,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+        callbackURL: `${process.env.GITHUB_CALLBACK_URL}/api/auth/github/callback`,
+      },
+      async (
+        accessToken: string,
+        refreshToken: string | undefined,
+        profile: GitHubProfile,
+        done: (error: any, user?: Express.User | false) => void
+      ) => {
+        try {
+          const user = {
+            id: profile.id,
+            username: profile.username,
+            displayName: profile.displayName,
+            avatarUrl: profile.photos?.[0]?.value || null,
+          };
 
-export const githubLogout: RequestHandler = (req, res) => {
-  req.logout(() => {
-    res.redirect("/");
+          await storage.upsertUser({
+            id: user.id,
+            email: profile.emails?.[0]?.value || "",
+            firstName: profile.displayName || "",
+            lastName: "",
+            profileImageUrl: user.avatarUrl,
+          });
+
+          done(null, user);
+        } catch (err) {
+          done(err);
+        }
+      }
+    )
+  );
+
+  // Routes
+  app.get("/api/login/github", passport.authenticate("github", { scope: ["user:email"] }));
+
+  app.get(
+    "/api/auth/github/callback",
+    passport.authenticate("github", { successRedirect: "/", failureRedirect: "/login" })
+  );
+
+  app.get("/api/logout/github", (req, res) => {
+    req.logout(() => {
+      res.redirect("/");
+    });
   });
 };
 

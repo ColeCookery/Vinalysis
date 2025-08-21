@@ -2,18 +2,17 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertAlbumSchema, insertRatingSchema, updateRatingSchema } from "@shared/schema";
-import { githubLogin, githubCallback, githubLogout, ensureAuthenticated } from "./githubAuth";
+import { ensureAuthenticated } from "./githubAuth";
+
+// Note: GitHub OAuth routes are already setup in githubAuth.ts
+// You only need to protect other API routes using ensureAuthenticated
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // --- GitHub OAuth routes ---
-  app.get("/api/login/github", githubLogin);
-  app.get("/api/auth/github/callback", githubCallback);
-  app.get("/api/logout/github", githubLogout);
 
-  // --- Auth routes ---
+  // Get current authenticated user
   app.get('/api/auth/user', ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id; // note: user.id now, not claims.sub
+      const userId = req.user.id; // matches what githubAuth.ts stores
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -26,18 +25,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/search', ensureAuthenticated, async (req: any, res) => {
     try {
       const query = req.query.q as string;
-      if (!query) {
-        return res.status(400).json({ message: "Query parameter 'q' is required" });
-      }
+      if (!query) return res.status(400).json({ message: "Query parameter 'q' is required" });
 
       const clientId = process.env.SPOTIFY_CLIENT_ID;
       const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+      if (!clientId || !clientSecret) return res.status(500).json({ message: "Spotify API credentials not configured" });
 
-      if (!clientId || !clientSecret) {
-        return res.status(500).json({ message: "Spotify API credentials not configured" });
-      }
-
-      // Get Spotify access token
       const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
@@ -48,29 +41,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const tokenData = await tokenResponse.json();
-      
-      if (!tokenResponse.ok) {
-        throw new Error(`Spotify token error: ${tokenData.error_description || tokenData.error}`);
-      }
+      if (!tokenResponse.ok) throw new Error(`Spotify token error: ${tokenData.error_description || tokenData.error}`);
 
-      // Search albums
       const searchResponse = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=20`,
-        {
-          headers: {
-            'Authorization': `Bearer ${tokenData.access_token}`
-          }
-        }
+        { headers: { 'Authorization': `Bearer ${tokenData.access_token}` } }
       );
-
       const searchData = await searchResponse.json();
-      
-      if (!searchResponse.ok) {
-        throw new Error(`Spotify search error: ${searchData.error?.message || 'Unknown error'}`);
-      }
+      if (!searchResponse.ok) throw new Error(`Spotify search error: ${searchData.error?.message || 'Unknown error'}`);
 
-      // Transform Spotify data to our format and include user ratings
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const albums = await Promise.all(
         searchData.albums.items.map(async (album: any) => {
           const albumData = {
@@ -80,18 +60,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             releaseDate: album.release_date,
             coverUrl: album.images[0]?.url || null,
             spotifyUrl: album.external_urls.spotify,
-            genre: null, // Spotify doesn't provide genre in album search
+            genre: null,
             label: album.label || null,
-            duration: null, // Would need separate API call
+            duration: null,
           };
 
-          // Get user's rating for this album
           const userRating = await storage.getUserRating(userId, album.id);
-
-          return {
-            ...albumData,
-            userRating
-          };
+          return { ...albumData, userRating };
         })
       );
 
