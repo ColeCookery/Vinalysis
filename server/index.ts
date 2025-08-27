@@ -32,13 +32,15 @@ app.use((req, res, next) => {
   setupGitHubAuth(app);
 
   // Add /api/me route here
+  // server/index.ts — after setupGitHubAuth(app)
   app.get("/api/me", (req, res) => {
     if (req.user) {
-      res.json({ user: req.user });
+      return res.json({ user: req.user });
     } else {
-      res.json({ user: null });
+      return res.json({ user: null });
     }
   });
+
 
   // Register other API routes
   const server = await registerRoutes(app);
