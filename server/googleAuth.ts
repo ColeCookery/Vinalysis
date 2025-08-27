@@ -1,18 +1,19 @@
-// githubAuth.ts
+// googleAuth.ts
 import { type Express, type RequestHandler } from "express";
 import session from "express-session";
 import passport from "passport";
-import { Strategy as GitHubStrategy, Profile as GitHubProfile } from "passport-github2";
+import { Strategy as GoogleStrategy, Profile as GoogleProfile } from "passport-google-oauth20";
 import { storage } from "./storage";
 
-if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || !process.env.GITHUB_CALLBACK_URL) {
-  throw new Error("GitHub auth environment variables missing");
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_CALLBACK_URL) {
+  throw new Error("Google auth environment variables missing");
 }
 
-export const setupGitHubAuth = (app: Express) => {
-  // Required behind Render/Heroku proxies
+export const setupGoogleAuth = (app: Express) => {
+  // Trust proxies (important for Render)
   app.set("trust proxy", 1);
 
+  // Session setup
   app.use(
     session({
       name: "vinalysis.sid",
@@ -23,7 +24,7 @@ export const setupGitHubAuth = (app: Express) => {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "production", // only over HTTPS in production
       },
     })
   );
@@ -31,71 +32,70 @@ export const setupGitHubAuth = (app: Express) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Serialize only the user ID
+  // Serialize user ID into session
   passport.serializeUser((user: any, done) => {
-    done(null, user.id);
+    done(null, user.sub); // store Google 'sub' in session
   });
 
-  // Deserialize user from DB and always include `sub`
-  passport.deserializeUser(async (id: string, done) => {
+  // Deserialize user from DB
+  passport.deserializeUser(async (sub: string, done) => {
     try {
-      const dbUser = await storage.getUser(id);
+      const dbUser = await storage.getUser(sub);
       if (!dbUser) return done(null, null);
 
-      // Map id -> sub for consistency
+      // Always include sub for consistency
       done(null, { ...dbUser, sub: dbUser.id });
     } catch (err) {
       done(err as any);
     }
   });
 
-  // GitHub OAuth Strategy
+  // Google OAuth strategy
   passport.use(
-    new GitHubStrategy(
+    new GoogleStrategy(
       {
-        clientID: process.env.GITHUB_CLIENT_ID!,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-        callbackURL: process.env.GITHUB_CALLBACK_URL!,
-        scope: ["user:email"],
+        clientID: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        callbackURL: process.env.GOOGLE_CALLBACK_URL!,
       },
-      async (accessToken, refreshToken, profile: GitHubProfile, done) => {
+      async (accessToken, refreshToken, profile: GoogleProfile, done) => {
         try {
           const user = {
-            id: profile.id,
-            sub: profile.id, // ensures consistency
-            username: profile.username || profile.displayName || "",
+            sub: profile.id, // unique Google identifier
+            email: profile.emails?.[0]?.value || "",
+            username: profile.displayName || "",
             avatarUrl: profile.photos?.[0]?.value || null,
           };
 
-          // Upsert into DB
+          // Upsert into your DB
           await storage.upsertUser({
-            id: user.id,
-            email: profile.emails?.[0]?.value || "",
+            id: user.sub,
+            email: user.email,
             firstName: profile.displayName || user.username,
             lastName: "",
             profileImageUrl: user.avatarUrl,
           });
 
-          return done(null, user);
+          done(null, user);
         } catch (err) {
-          return done(err as any);
+          done(err as any);
         }
       }
     )
   );
 
   // Routes
-  app.get("/api/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
+  app.get("/api/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
   app.get(
-    "/api/auth/github/callback",
-    passport.authenticate("github", {
+    "/api/auth/google/callback",
+    passport.authenticate("google", {
       successRedirect: process.env.FRONTEND_URL || "/",
       failureRedirect: "/login",
     })
   );
 
-  app.get("/api/logout/github", (req, res, next) => {
+  app.get("/api/logout/google", (req, res, next) => {
     req.logout(err => {
       if (err) return next(err);
       res.redirect("/");

@@ -10,8 +10,8 @@ export default function Landing() {
   const { user, isLoading, isAuthenticated } = useAuth();
 
   const handleLogin = () => {
-    // Trigger the server-side GitHub OAuth flow
-    window.location.href = "/api/auth/github";
+    // Trigger the server-side Google OAuth flow
+    window.location.href = "/api/auth/google";
   };
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function Landing() {
           </h2>
           
           <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8" data-testid="landing-description">
-            Rank music, save ratings, and compare your taste — sign in with GitHub to get started.
+            Rank music, save ratings, and compare your taste — sign in with Google to get started.
           </p>
           
           <Button onClick={handleLogin} size="lg">

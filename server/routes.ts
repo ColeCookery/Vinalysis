@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertAlbumSchema, insertRatingSchema, updateRatingSchema } from "@shared/schema";
-import { ensureAuthenticated } from "./githubAuth";
+import { ensureAuthenticated } from "./googleAuth";
 
 // Note: GitHub OAuth routes are already setup in githubAuth.ts
 // You only need to protect other API routes using ensureAuthenticated
