@@ -33,7 +33,9 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
           <div className="flex items-center space-x-8">
             <div className="flex items-center">
               <Disc3 className="text-spotify-green text-2xl mr-2" />
-              <h1 className="text-xl font-bold text-white" data-testid="app-title">Vinalysis</h1>
+              <Link href="/" className="text-xl font-bold text-white hover:text-spotify-green" data-testid="app-title">
+                Vinalysis
+              </Link>
             </div>
             <nav className="hidden md:flex space-x-6">
               <Link
