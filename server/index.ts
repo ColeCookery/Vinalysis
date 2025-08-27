@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { setupGitHubAuth } from "./googleAuth";
+import { setupGoogleAuth } from "./googleAuth"; // updated import
 
 const app = express();
 app.use(express.json());
@@ -28,19 +28,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Setup GitHub auth (adds /api/login/github, /api/auth/github/callback, /api/logout/github)
-  setupGitHubAuth(app);
+  // Setup Google OAuth
+  setupGoogleAuth(app);
 
-  // Add /api/me route here
-  // server/index.ts — after setupGitHubAuth(app)
+  // Add /api/me route
   app.get("/api/me", (req, res) => {
     if (req.user) {
-      return res.json({ user: req.user });
-    } else {
-      return res.json({ user: null });
+      const { sub, email, username, avatarUrl } = req.user as any;
+      return res.json({ user: { sub, email, username, avatarUrl } });
     }
+    return res.json({ user: null });
   });
-
 
   // Register other API routes
   const server = await registerRoutes(app);
@@ -60,5 +58,7 @@ app.use((req, res, next) => {
   }
 
   const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen({ port, host: "0.0.0.0", reusePort: true }, () => log(`serving on port ${port}`));
+  server.listen({ port, host: "0.0.0.0", reusePort: true }, () =>
+    log(`serving on port ${port}`)
+  );
 })();

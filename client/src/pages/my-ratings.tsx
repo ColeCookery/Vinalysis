@@ -44,7 +44,7 @@ export default function MyRatings() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login/github";
+          window.location.href = "/api/login/google";
         }, 500);
         return;
       }

@@ -4,15 +4,12 @@ import { storage } from "./storage";
 import { insertAlbumSchema, insertRatingSchema, updateRatingSchema } from "@shared/schema";
 import { ensureAuthenticated } from "./googleAuth";
 
-// Note: GitHub OAuth routes are already setup in githubAuth.ts
-// You only need to protect other API routes using ensureAuthenticated
-
 export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get current authenticated user
   app.get('/api/auth/user', ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id; // matches what githubAuth.ts stores
+      const userId = req.user.sub;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -50,7 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const searchData = await searchResponse.json();
       if (!searchResponse.ok) throw new Error(`Spotify search error: ${searchData.error?.message || 'Unknown error'}`);
 
-      const userId = req.user.id;
+      const userId = req.user.sub;
       const albums = await Promise.all(
         searchData.albums.items.map(async (album: any) => {
           const albumData = {
@@ -81,7 +78,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/albums/:id', ensureAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.user.sub;
 
       let album = await storage.getAlbum(id);
       
@@ -155,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create or update rating
   app.post('/api/ratings', ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.sub;
       const ratingData = insertRatingSchema.parse({
         ...req.body,
         userId
@@ -256,7 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's ratings
   app.get('/api/ratings', ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.sub;
       const ratings = await storage.getUserRatings(userId);
       res.json(ratings);
     } catch (error) {
@@ -268,7 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user stats
   app.get('/api/stats', ensureAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.sub;
       const stats = await storage.getUserStats(userId);
       res.json(stats);
     } catch (error) {
