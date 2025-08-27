@@ -57,6 +57,7 @@ export const setupGitHubAuth = (app: Express) => {
         try {
           const user = {
             id: profile.id,
+            sub: profile.id,
             username: profile.username || profile.displayName || "",
             avatarUrl: profile.photos?.[0]?.value || null,
           };

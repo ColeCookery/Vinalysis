@@ -40,7 +40,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
                 href="/"
                 className={`transition-colors px-3 py-2 rounded-md font-medium ${
                   location === "/" 
-                    ? "text-spotify-green bg-spotify-green bg-opacity-10" 
+                    ? "text-white bg-spotify-green bg-opacity-10" 
                     : "text-light-text hover:text-spotify-green"
                 }`}
                 data-testid="link-discover"
@@ -51,7 +51,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
                 href="/my-ratings"
                 className={`transition-colors px-3 py-2 rounded-md font-medium ${
                   location === "/my-ratings" 
-                    ? "text-spotify-green bg-spotify-green bg-opacity-10" 
+                    ? "text-white bg-spotify-green bg-opacity-10" 
                     : "text-light-text hover:text-spotify-green"
                 }`}
                 data-testid="link-my-ratings"
@@ -62,7 +62,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
                 href="/statistics"
                 className={`transition-colors px-3 py-2 rounded-md font-medium ${
                   location === "/statistics" 
-                    ? "text-spotify-green bg-spotify-green bg-opacity-10" 
+                    ? "text-white bg-spotify-green bg-opacity-10" 
                     : "text-light-text hover:text-spotify-green"
                 }`}
                 data-testid="link-statistics"
