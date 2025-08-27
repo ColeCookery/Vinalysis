@@ -10,7 +10,7 @@ if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || !proce
 }
 
 export const setupGitHubAuth = (app: Express) => {
-  // Required when behind Render/Heroku proxies so secure cookies are honored
+  // Required behind Render/Heroku proxies
   app.set("trust proxy", 1);
 
   app.use(
@@ -31,20 +31,25 @@ export const setupGitHubAuth = (app: Express) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Store only the ID in the session
+  // Serialize only the user ID
   passport.serializeUser((user: any, done) => {
     done(null, user.id);
   });
 
+  // Deserialize user from DB and always include `sub`
   passport.deserializeUser(async (id: string, done) => {
     try {
       const dbUser = await storage.getUser(id);
-      done(null, dbUser);
+      if (!dbUser) return done(null, null);
+
+      // Map id -> sub for consistency
+      done(null, { ...dbUser, sub: dbUser.id });
     } catch (err) {
       done(err as any);
     }
   });
 
+  // GitHub OAuth Strategy
   passport.use(
     new GitHubStrategy(
       {
@@ -57,7 +62,7 @@ export const setupGitHubAuth = (app: Express) => {
         try {
           const user = {
             id: profile.id,
-            sub: profile.id,
+            sub: profile.id, // ensures consistency
             username: profile.username || profile.displayName || "",
             avatarUrl: profile.photos?.[0]?.value || null,
           };
