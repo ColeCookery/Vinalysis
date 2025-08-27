@@ -23,7 +23,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
   };
 
   const handleLogout = () => {
-    window.location.href = "/api/logout/github";
+    window.location.href = "/api/logout/google";
   };
 
   return (
@@ -43,9 +43,9 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
                     ? "text-white bg-spotify-green bg-opacity-10" 
                     : "text-light-text hover:text-spotify-green"
                 }`}
-                data-testid="link-discover"
+                data-testid="link-home"
               >
-                Discover
+                Home
               </Link>
               <Link
                 href="/my-ratings"
@@ -146,7 +146,7 @@ export function NavigationHeader({ onSearch, searchQuery, showSearch = true }: N
                 location === "/" ? "text-spotify-green" : "text-light-text hover:text-white"
               }`}
             >
-              Discover
+              Home
             </Link>
             <Link 
               href="/my-ratings" 

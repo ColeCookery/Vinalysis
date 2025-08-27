@@ -195,6 +195,26 @@ export default function Discover() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+          {/* Discover Page Search Bar */}
+          <section className="mb-8">
+            <form onSubmit={(e) => { e.preventDefault(); handleSearch(searchQuery); }} className="flex">
+              <Input
+                type="search"
+                placeholder="Search albums..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-dark-slate border-gray-600 rounded-l-lg px-4 py-2 focus:ring-2 focus:ring-spotify-green"
+              />
+              <Button
+                type="submit"
+                className="bg-spotify-green rounded-r-lg px-4 py-2"
+                disabled={searchMutation.isPending}
+              >
+                Search
+              </Button>
+            </form>
+          </section>
+
         {/* Search Results */}
         {searchQuery && (
           <section className="mb-12">

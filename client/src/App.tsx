@@ -9,6 +9,8 @@ import Landing from "@/pages/landing";
 import Discover from "@/pages/discover";
 import MyRatings from "@/pages/my-ratings";
 import Statistics from "@/pages/statistics";
+import Home from "@/pages/home";
+
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -19,7 +21,8 @@ function Router() {
         <Route path="/" component={Landing} />
       ) : (
         <>
-          <Route path="/" component={Discover} />
+          <Route path="/" component={Home} />
+          <Route path="/discover" component={Discover} />
           <Route path="/my-ratings" component={MyRatings} />
           <Route path="/statistics" component={Statistics} />
         </>
